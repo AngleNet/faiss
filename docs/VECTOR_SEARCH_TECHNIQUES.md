@@ -285,10 +285,16 @@ Combines IVF partitioning with PQ compression - one of the most popular index ty
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
+nb = 100000  # database size
 nlist = 100
 m = 16
+
+# Sample data
+xb = np.random.random((nb, d)).astype('float32')
+xq = np.random.random((10, d)).astype('float32')  # queries
 
 quantizer = faiss.IndexFlatL2(d)
 index = faiss.IndexIVFPQ(quantizer, d, nlist, m, 8)
@@ -297,6 +303,7 @@ index.train(xb)
 index.add(xb)
 index.nprobe = 10
 
+k = 4
 D, I = index.search(xq, k)
 ```
 
@@ -345,12 +352,20 @@ Scalar Quantization is a simpler compression technique that quantizes each dimen
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
+nb = 100000  # database size
+
+# Sample data
+xb = np.random.random((nb, d)).astype('float32')
+xq = np.random.random((10, d)).astype('float32')  # queries
+
 index = faiss.IndexScalarQuantizer(d, faiss.ScalarQuantizer.QT_8bit)
 index.train(xb)
 index.add(xb)
 
+k = 4
 D, I = index.search(xq, k)
 ```
 
@@ -369,9 +384,14 @@ Combines IVF with SQ for partitioned, compressed search.
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
+nb = 100000  # database size
 nlist = 100
+
+# Sample data
+xb = np.random.random((nb, d)).astype('float32')
 
 quantizer = faiss.IndexFlatL2(d)
 index = faiss.IndexIVFScalarQuantizer(
@@ -497,14 +517,21 @@ LSH uses random projections to hash similar vectors to the same buckets with hig
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
+nb = 100000  # database size
 nbits = 256  # number of hash bits
+
+# Sample data
+xb = np.random.random((nb, d)).astype('float32')
+xq = np.random.random((10, d)).astype('float32')  # queries
 
 index = faiss.IndexLSH(d, nbits)
 index.train(xb)
 index.add(xb)
 
+k = 4
 D, I = index.search(xq, k)
 ```
 
@@ -719,6 +746,7 @@ nb = 10_000_000
 
 # Load your image features
 # xb = load_image_features()  # shape: (nb, d)
+xb = np.random.random((nb, d)).astype('float32')  # Placeholder for demo
 
 # For large dataset with memory constraints, use IVF + PQ
 nlist = 4096  # sqrt(10M) ≈ 3162, round up to power of 2
@@ -757,6 +785,10 @@ import numpy as np
 d = 768
 nb = 1_000_000
 
+# Load your sentence embeddings
+# xb = load_sentence_embeddings()  # shape: (nb, d)
+xb = np.random.random((nb, d)).astype('float32')  # Placeholder for demo
+
 # For semantic search, we want high accuracy
 # HNSW provides excellent accuracy/speed trade-off
 
@@ -787,6 +819,10 @@ import numpy as np
 
 d = 128
 nb = 5_000_000
+
+# Load your user/item embeddings
+# xb = load_item_embeddings()  # shape: (nb, d)
+xb = np.random.random((nb, d)).astype('float32')  # Placeholder for demo
 
 # Use GPU for lowest latency
 res = faiss.StandardGpuResources()
