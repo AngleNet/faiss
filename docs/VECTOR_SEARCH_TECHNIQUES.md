@@ -767,7 +767,8 @@ index.add(xb)
 index.nprobe = 64
 
 # Search
-query_features = get_query_image_features()  # shape: (1, d)
+# query_features = get_query_image_features()  # Load your query image features
+query_features = np.random.random((1, d)).astype('float32')  # Placeholder for demo
 k = 10
 D, I = index.search(query_features, k)
 
@@ -802,7 +803,8 @@ index.add(xb)
 index.hnsw.efSearch = 256
 
 # Normalize query for cosine similarity
-query = get_query_embedding()
+# query = get_query_embedding()  # Load your query embedding
+query = np.random.random((1, d)).astype('float32')  # Placeholder for demo
 faiss.normalize_L2(query)
 
 k = 20
@@ -843,7 +845,8 @@ index.nprobe = 32
 
 # Batch queries are more efficient on GPU
 batch_size = 1000
-queries = get_user_queries(batch_size)  # shape: (1000, d)
+# queries = get_user_queries(batch_size)  # Load your batch of queries
+queries = np.random.random((batch_size, d)).astype('float32')  # Placeholder for demo
 k = 10
 D, I = index.search(queries, k)
 ```
@@ -866,7 +869,7 @@ nlist = 65536  # Many clusters for efficiency
 shard_size = 10_000_000  # 10M per shard
 
 # Create index factory string for OPQ + IVF + PQ
-index = faiss.index_factory(d, "OPQ32,IVF65536,PQ32")
+index = faiss.index_factory(d, "OPQ16,IVF65536,PQ16")
 
 # Train on a sample
 sample_size = 1_000_000
