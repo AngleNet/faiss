@@ -880,7 +880,8 @@ index.train(training_sample)
 # Add vectors in batches (can be distributed across machines)
 for i in range(0, nb, shard_size):
     # xb_shard = load_shard(i, shard_size)  # Load your data shard
-    xb_shard = np.random.random((shard_size, d)).astype('float32')
+    current_size = min(shard_size, nb - i)
+    xb_shard = np.random.random((current_size, d)).astype('float32')
     index.add(xb_shard)
 
 # Save to disk
