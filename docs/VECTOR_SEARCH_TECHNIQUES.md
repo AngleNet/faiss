@@ -261,14 +261,21 @@ Standalone PQ index (not combined with IVF).
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
+nb = 100000  # database size
 m = 16  # number of sub-vectors (must divide d evenly)
+
+# Sample data
+xb = np.random.random((nb, d)).astype('float32')
+xq = np.random.random((10, d)).astype('float32')  # queries
 
 index = faiss.IndexPQ(d, m, 8)  # 8 bits per sub-vector
 index.train(xb)
 index.add(xb)
 
+k = 4
 D, I = index.search(xq, k)
 ```
 
@@ -584,9 +591,15 @@ Faiss provides GPU implementations that can dramatically speed up both indexing 
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
 nb = 1000000
+k = 4
+
+# Sample data
+xb = np.random.random((nb, d)).astype('float32')
+xq = np.random.random((10, d)).astype('float32')  # queries
 
 # Create a CPU index
 cpu_index = faiss.IndexFlatL2(d)
@@ -605,7 +618,10 @@ D, I = gpu_index.search(xq, k)
 Some indexes are designed specifically for GPU:
 
 ```python
-from faiss import GpuIndexFlatL2, GpuIndexIVFFlat
+import faiss
+
+d = 128
+nlist = 100  # number of clusters
 
 res = faiss.StandardGpuResources()
 
@@ -802,6 +818,7 @@ Handling 1 billion vectors that don't fit in RAM:
 
 ```python
 import faiss
+import numpy as np
 
 d = 128
 nb = 1_000_000_000  # 1 billion
@@ -817,11 +834,14 @@ index = faiss.index_factory(d, "OPQ32,IVF65536,PQ32")
 
 # Train on a sample
 sample_size = 1_000_000
+# training_sample = load_training_data(sample_size)  # Load your training data
+training_sample = np.random.random((sample_size, d)).astype('float32')
 index.train(training_sample)
 
 # Add vectors in batches (can be distributed across machines)
 for i in range(0, nb, shard_size):
-    xb_shard = load_shard(i, shard_size)
+    # xb_shard = load_shard(i, shard_size)  # Load your data shard
+    xb_shard = np.random.random((shard_size, d)).astype('float32')
     index.add(xb_shard)
 
 # Save to disk
@@ -831,6 +851,9 @@ faiss.write_index(index, "billion_scale.index")
 index = faiss.read_index("billion_scale.index")
 index.nprobe = 128
 
+# Query vectors
+xq = np.random.random((10, d)).astype('float32')
+k = 10
 D, I = index.search(xq, k)
 ```
 
